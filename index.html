@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Multi-Record CSV Generator</title>
+    <title>BT Account updater input CSV file Generator</title>
     <style>
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -23,6 +23,7 @@
             border-radius: 12px;
             box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
             animation: fadeIn 0.8s ease-in-out;
+            position: relative;
         }
         @keyframes fadeIn {
             from { opacity: 0; transform: translateY(20px); }
@@ -73,17 +74,16 @@
             border-color: #3498db;
             box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.2);
         }
-        .other-input {
-            margin-top: 10px;
-            display: none;
-            width: 100%;
-        }
         .button-container {
             text-align: center;
             margin-top: 30px;
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            flex-wrap: wrap;
         }
         button {
-            padding: 12px 30px;
+            padding: 12px 24px;
             background-color: #3498db;
             color: white;
             border: none;
@@ -97,10 +97,28 @@
             background-color: #2980b9;
             transform: translateY(-2px);
         }
+        .btn-green {
+            background-color: #27ae60;
+        }
+        .btn-green:hover {
+            background-color: #219150;
+        }
+        .btn-red {
+            background-color: #e74c3c;
+        }
+        .btn-red:hover {
+            background-color: #c0392b;
+        }
         .record-list {
             margin-top: 40px;
             border-top: 2px solid #ecf0f1;
             padding-top: 20px;
+        }
+        .record-list-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
         }
         .record-item {
             background-color: #ecf0f1;
@@ -135,23 +153,157 @@
         .delete-btn:hover {
             background-color: #c0392b;
         }
-        /* New styles for validation */
+        .duplicate-btn {
+            background-color: #f39c12;
+        }
+        .duplicate-btn:hover {
+            background-color: #d35400;
+        }
+        
+        /* Validation Styles */
         .input-group .error-message {
             color: #e74c3c;
             font-size: 12px;
             margin-top: 4px;
-            min-height: 16px; /* Reserve space to prevent layout shift */
+            min-height: 16px;
         }
         .input-group .input-error {
             border-color: #e74c3c;
+        }
+
+        /* Picker Styles */
+        .picker-wrapper {
+            display: flex;
+            align-items: center;
+            width: 100%;
+            position: relative;
+        }
+        .picker-btn {
+            padding: 0 10px;
+            background: #ecf0f1;
+            border: 1px solid #bdc3c7;
+            border-left: none;
+            border-top-right-radius: 6px;
+            border-bottom-right-radius: 6px;
+            cursor: pointer;
+            height: 39px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+        }
+        .picker-btn:hover {
+            background-color: #d5dbdb;
+        }
+        .input-with-picker {
+            border-top-right-radius: 0 !important;
+            border-bottom-right-radius: 0 !important;
+        }
+        .custom-datepicker {
+            position: absolute;
+            top: 100%;
+            right: 0;
+            width: 220px;
+            background: #fff;
+            border: 1px solid #bdc3c7;
+            border-radius: 6px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.15);
+            z-index: 1000;
+            display: none;
+            font-size: 14px;
+            color: #333;
+            overflow: hidden;
+        }
+        .custom-datepicker.active {
+            display: block;
+        }
+        .dp-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background-color: #f4f7f9;
+            padding: 8px;
+            border-bottom: 1px solid #eee;
+        }
+        .dp-year-btn {
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-weight: bold;
+            color: #3498db;
+            padding: 4px 8px;
+        }
+        .dp-year-btn:hover {
+            background-color: #e8ecef;
+            border-radius: 4px;
+        }
+        .dp-year-btn:disabled {
+            color: #bdc3c7;
+            cursor: not-allowed;
+            background: none !important;
+        }
+        .dp-year-display {
+            font-weight: bold;
+        }
+        .dp-body {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 2px;
+            padding: 5px;
+        }
+        .dp-month-btn {
+            padding: 8px 0;
+            text-align: center;
+            cursor: pointer;
+            border-radius: 4px;
+            font-size: 13px;
+        }
+        .dp-month-btn:hover:not(.disabled) {
+            background-color: #3498db;
+            color: white;
+        }
+        .dp-month-btn.disabled {
+            color: #bdc3c7;
+            cursor: not-allowed;
+            background-color: #f9f9f9;
+        }
+
+        /* Toast Styles */
+        #toast-container {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 9999;
+        }
+        .toast {
+            background-color: #333;
+            color: #fff;
+            padding: 12px 24px;
+            border-radius: 6px;
+            margin-bottom: 10px;
+            opacity: 0;
+            transform: translateY(-20px);
+            transition: opacity 0.3s, transform 0.3s;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            display: flex;
+            align-items: center;
+        }
+        .toast.success { background-color: #27ae60; }
+        .toast.error { background-color: #e74c3c; }
+        .toast.info { background-color: #3498db; }
+        .toast.show {
+            opacity: 1;
+            transform: translateY(0);
         }
     </style>
 </head>
 <body>
 
+    <div id="toast-container"></div>
+
     <div class="container">
-        <h2>Multi-Record CSV Generator</h2>
-        <p>Fill in the values below. Add a record to the list, then download the full CSV file.</p>
+        <h2>BT Account updater input CSV file Generator</h2>
+        <p>Fill in the values below. Auto-saves to your browser.</p>
         
         <div id="input-fields" class="input-grid">
             <!-- Input fields will be dynamically added here by JavaScript -->
@@ -159,17 +311,21 @@
 
         <div class="button-container">
             <button id="add-record-btn" onclick="addRecord()">Add Record</button>
-            <button onclick="generateCSV()">Download CSV</button>
+            <button class="btn-green" onclick="generateCSV()">Download CSV</button>
         </div>
 
         <div class="record-list" id="record-list">
-            <h3>Saved Records (<span id="record-count">0</span>)</h3>
-            <!-- Saved records will be displayed here -->
+            <div class="record-list-header">
+                <h3>Saved Records (<span id="record-count">0</span>)</h3>
+                <button onclick="confirmClearAll()" class="btn-red" style="padding: 6px 12px; font-size: 14px;">Clear All</button>
+            </div>
+            <div id="records-container">
+                <!-- Saved records will be displayed here -->
+            </div>
         </div>
     </div>
 
     <script>
-        // Predefined keys provided by the user
         const keys = [
             "card_updated_at", "payment_method_token", "customer_id", "old_last_4",
             "old_expiration", "new_last_4", "new_expiration", "new_card_type",
@@ -184,12 +340,16 @@
             "debit", "global_id"
         ];
 
-        // Default values for non-mandatory fields and specific formats
+        const labelMapping = {
+            "customer_id": "customer_id (user Login_id)",
+            "global_id": "global_id (BT_pmProfile)"
+        };
+
         const defaultValues = {
             "card_updated_at": "2025-09-14T04:10:43+00:00",
             "payment_method_token": "xyxz3178",
             "old_expiration": "12/30",
-            "new_expiration": "02/28",
+            "new_expiration": "02/35", 
             "new_card_type": "",
             "update_type": "",
             "prepaid": "No",
@@ -206,7 +366,6 @@
             "bin": "1845241"
         };
         
-        // Options for specific fields
         const fieldOptions = {
             "new_card_type": ["Visa", "MasterCard"],
             "update_type": ["New account number", "New expiry date", "Call customer - Account Closed"],
@@ -218,146 +377,298 @@
             "payroll": ["Yes", "No", "Unknown"]
         };
 
-        // Array to store all saved records
         let records = [];
         let recordToEditIndex = -1;
         let downloadVersion = 1;
 
-        // Function to dynamically create input fields for each key
+        // --- TOAST NOTIFICATIONS ---
+        function showToast(message, type = 'info') {
+            const container = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+            toast.className = `toast ${type}`;
+            toast.textContent = message;
+            container.appendChild(toast);
+            requestAnimationFrame(() => toast.classList.add('show'));
+            setTimeout(() => {
+                toast.classList.remove('show');
+                setTimeout(() => container.removeChild(toast), 300);
+            }, 3000);
+        }
+
+        // --- LOCAL STORAGE ---
+        function saveToLocalStorage() {
+            localStorage.setItem('csvGeneratorRecords', JSON.stringify(records));
+            localStorage.setItem('csvGeneratorVersion', downloadVersion);
+        }
+
+        function loadFromLocalStorage() {
+            const savedRecords = localStorage.getItem('csvGeneratorRecords');
+            const savedVersion = localStorage.getItem('csvGeneratorVersion');
+            
+            if (savedRecords) {
+                try {
+                    records = JSON.parse(savedRecords);
+                    if (savedVersion) downloadVersion = parseInt(savedVersion);
+                    renderRecords();
+                    if(records.length > 0) showToast(`Restored ${records.length} saved records`, 'info');
+                } catch (e) {
+                    console.error("Error parsing saved records", e);
+                }
+            }
+        }
+
+        // --- PICKER LOGIC ---
+        const monthsShort = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+
+        function createCustomPicker(inputElement, defaultValue, minDateInputId = null) {
+            const wrapper = document.createElement('div');
+            wrapper.className = 'picker-wrapper';
+            inputElement.className = 'input-with-picker';
+            
+            const pickerBtn = document.createElement('button');
+            pickerBtn.type = 'button';
+            pickerBtn.className = 'picker-btn';
+            pickerBtn.innerHTML = '📅';
+            
+            const popup = document.createElement('div');
+            popup.className = 'custom-datepicker';
+            
+            let currentYear = new Date().getFullYear();
+            if (defaultValue && defaultValue.includes('/')) {
+                const parts = defaultValue.split('/');
+                if (parts.length === 2) currentYear = 2000 + parseInt(parts[1]); 
+            }
+
+            function getMinDate() {
+                if (!minDateInputId) return null;
+                const minInput = document.getElementById(minDateInputId);
+                if (!minInput || !minInput.value || !minInput.value.includes('/')) return null;
+                const parts = minInput.value.split('/');
+                if (parts.length !== 2) return null;
+                return { month: parseInt(parts[0]) - 1, year: 2000 + parseInt(parts[1]) };
+            }
+
+            const header = document.createElement('div');
+            header.className = 'dp-header';
+
+            const prevYearBtn = document.createElement('button');
+            prevYearBtn.className = 'dp-year-btn';
+            prevYearBtn.textContent = '<';
+            prevYearBtn.onclick = (e) => { e.stopPropagation(); currentYear--; renderPicker(); };
+
+            const yearDisplay = document.createElement('span');
+            yearDisplay.className = 'dp-year-display';
+            
+            const nextYearBtn = document.createElement('button');
+            nextYearBtn.className = 'dp-year-btn';
+            nextYearBtn.textContent = '>';
+            nextYearBtn.onclick = (e) => { e.stopPropagation(); currentYear++; renderPicker(); };
+
+            header.appendChild(prevYearBtn);
+            header.appendChild(yearDisplay);
+            header.appendChild(nextYearBtn);
+
+            const body = document.createElement('div');
+            body.className = 'dp-body';
+
+            function renderPicker() {
+                const minDate = getMinDate();
+                yearDisplay.textContent = currentYear;
+                body.innerHTML = ''; 
+
+                if (minDate && currentYear <= minDate.year) prevYearBtn.disabled = true;
+                else prevYearBtn.disabled = false;
+
+                monthsShort.forEach((m, index) => {
+                    const monthBtn = document.createElement('div');
+                    monthBtn.className = 'dp-month-btn';
+                    monthBtn.textContent = m;
+                    
+                    let isDisabled = false;
+                    if (minDate) {
+                        if (currentYear < minDate.year) isDisabled = true;
+                        else if (currentYear === minDate.year && index <= minDate.month) isDisabled = true;
+                    }
+
+                    if (isDisabled) monthBtn.classList.add('disabled');
+                    else {
+                        monthBtn.onclick = (e) => {
+                            e.stopPropagation();
+                            const mm = (index + 1).toString().padStart(2, '0');
+                            const yy = currentYear.toString().slice(-2);
+                            inputElement.value = `${mm}/${yy}`;
+                            inputElement.dispatchEvent(new Event('input'));
+                            popup.classList.remove('active');
+                        };
+                    }
+                    body.appendChild(monthBtn);
+                });
+            }
+
+            renderPicker();
+            popup.appendChild(header);
+            popup.appendChild(body);
+
+            pickerBtn.onclick = (e) => {
+                e.stopPropagation(); 
+                document.querySelectorAll('.custom-datepicker.active').forEach(p => { if (p !== popup) p.classList.remove('active'); });
+
+                let inputYear = null;
+                if (inputElement.value && inputElement.value.includes('/')) {
+                     const parts = inputElement.value.split('/');
+                     if (parts.length === 2 && !isNaN(parts[1])) inputYear = 2000 + parseInt(parts[1]);
+                }
+
+                const minDate = getMinDate();
+                if (inputYear) currentYear = inputYear;
+                if (minDate && currentYear < minDate.year) currentYear = minDate.year;
+                if (minDate && currentYear === minDate.year && minDate.month === 11) currentYear++;
+
+                renderPicker();
+                popup.classList.toggle('active');
+            };
+
+            document.addEventListener('click', (e) => {
+                if (!popup.contains(e.target) && e.target !== pickerBtn) popup.classList.remove('active');
+            });
+            popup.onclick = (e) => e.stopPropagation();
+            wrapper.appendChild(inputElement);
+            wrapper.appendChild(pickerBtn);
+            wrapper.appendChild(popup);
+            return wrapper;
+        }
+
         function populateInputFields() {
             const container = document.getElementById('input-fields');
             keys.forEach(key => {
                 const group = document.createElement('div');
                 group.className = 'input-group';
-                
                 const label = document.createElement('label');
                 label.setAttribute('for', key);
-                label.textContent = key;
-                if (mandatoryKeys.includes(key)) {
-                    label.classList.add('mandatory-label');
-                }
+                label.textContent = labelMapping[key] || key;
+                if (mandatoryKeys.includes(key)) label.classList.add('mandatory-label');
                 group.appendChild(label);
 
                 const input = document.createElement('input');
                 input.type = 'text';
                 input.id = key;
                 input.setAttribute('data-key', key);
-                
-                // Set the default value if available
-                if (defaultValues[key]) {
-                    input.value = defaultValues[key];
-                }
-
-                // Add a datalist for specific fields to show dropdown options
-                if (fieldOptions[key]) {
-                    input.setAttribute('list', `${key}-options`);
-                    const datalist = document.createElement('datalist');
-                    datalist.id = `${key}-options`;
-                    fieldOptions[key].forEach(option => {
-                        const optionElement = document.createElement('option');
-                        optionElement.value = option;
-                        datalist.appendChild(optionElement);
-                    });
-                    group.appendChild(datalist);
-                }
+                if (defaultValues[key]) input.value = defaultValues[key];
 
                 if (key === "old_expiration" || key === "new_expiration") {
                     input.placeholder = "MM/YY";
-                }
-                
-                group.appendChild(input);
-
-                // Add an event listener to clear validation on input for mandatory fields
-                if (mandatoryKeys.includes(key)) {
+                    const minDateId = (key === "new_expiration") ? "old_expiration" : null;
+                    group.appendChild(createCustomPicker(input, defaultValues[key], minDateId));
                     input.addEventListener('input', () => {
-                        if (input.value.trim() !== '') {
-                            const errorMessageSpan = document.getElementById(`error-${key}`);
-                            errorMessageSpan.textContent = '';
-                            input.classList.remove('input-error');
-                        }
+                         if (input.value.trim() !== '') {
+                             document.getElementById(`error-${key}`).textContent = '';
+                             input.classList.remove('input-error');
+                         }
                     });
+                } else {
+                    if (fieldOptions[key]) {
+                        input.setAttribute('list', `${key}-options`);
+                        const datalist = document.createElement('datalist');
+                        datalist.id = `${key}-options`;
+                        fieldOptions[key].forEach(opt => {
+                            const el = document.createElement('option');
+                            el.value = opt;
+                            datalist.appendChild(el);
+                        });
+                        group.appendChild(datalist);
+                    }
+                    group.appendChild(input);
+                    if (mandatoryKeys.includes(key)) {
+                        input.addEventListener('input', () => {
+                            if (input.value.trim() !== '') {
+                                document.getElementById(`error-${key}`).textContent = '';
+                                input.classList.remove('input-error');
+                            }
+                        });
+                    }
                 }
-
-                // Add an error message span for mandatory fields
-                const errorMessageSpan = document.createElement('span');
-                errorMessageSpan.className = 'error-message';
-                errorMessageSpan.id = `error-${key}`;
-                group.appendChild(errorMessageSpan);
-
+                const err = document.createElement('span');
+                err.className = 'error-message';
+                err.id = `error-${key}`;
+                group.appendChild(err);
                 container.appendChild(group);
             });
         }
 
-        // Function to save a new record or update an existing one
         function addRecord() {
             const newRecord = {};
             let hasError = false;
-            
-            // Clear previous validation errors
             clearValidationErrors();
 
-            // Collect values and check for mandatory fields
             keys.forEach(key => {
                 const inputElement = document.getElementById(key);
-                const value = inputElement ? inputElement.value.trim() : '';
-
+                let value = inputElement ? inputElement.value.trim() : '';
                 if (mandatoryKeys.includes(key) && value === '') {
-                    const errorMessageSpan = document.getElementById(`error-${key}`);
-                    if (errorMessageSpan) {
-                        errorMessageSpan.textContent = 'This field is required.';
-                    }
-                    if (inputElement) {
-                        inputElement.classList.add('input-error');
-                    }
+                    document.getElementById(`error-${key}`).textContent = 'This field is required.';
+                    if (inputElement) inputElement.classList.add('input-error');
                     hasError = true;
                 }
                 newRecord[key] = value;
             });
             
             if (hasError) {
+                showToast('Please fill in all mandatory fields', 'error');
                 return;
             }
 
             if (recordToEditIndex === -1) {
-                // Add new record
                 records.push(newRecord);
+                showToast('Record added successfully', 'success');
             } else {
-                // Update existing record
                 records[recordToEditIndex] = newRecord;
-                recordToEditIndex = -1; // Reset edit state
+                recordToEditIndex = -1;
                 document.getElementById('add-record-btn').textContent = 'Add Record';
+                showToast('Record updated successfully', 'success');
             }
 
+            saveToLocalStorage();
             renderRecords();
             clearForm();
         }
 
-        // Function to clear the form fields after a record is added
         function clearForm() {
             keys.forEach(key => {
                 const inputElement = document.getElementById(key);
-                if (inputElement) {
-                    inputElement.value = defaultValues[key] || '';
-                }
+                if (inputElement) inputElement.value = defaultValues[key] || '';
             });
             clearValidationErrors();
+            if (recordToEditIndex !== -1) {
+                recordToEditIndex = -1;
+                document.getElementById('add-record-btn').textContent = 'Add Record';
+            }
         }
 
-        // Function to clear validation errors and styling
         function clearValidationErrors() {
-            document.querySelectorAll('.error-message').forEach(span => {
-                span.textContent = '';
-            });
-            document.querySelectorAll('.input-error').forEach(input => {
-                input.classList.remove('input-error');
-            });
+            document.querySelectorAll('.error-message').forEach(span => span.textContent = '');
+            document.querySelectorAll('.input-error').forEach(input => input.classList.remove('input-error'));
         }
 
-        // Function to render the list of saved records
+        function confirmClearAll() {
+            if (records.length === 0) return;
+            if (confirm("Are you sure you want to delete ALL records?")) {
+                records = [];
+                saveToLocalStorage();
+                renderRecords();
+                showToast('All records cleared', 'info');
+            }
+        }
+
         function renderRecords() {
-            const recordListContainer = document.getElementById('record-list');
-            recordListContainer.innerHTML = '<h3>Saved Records (<span id="record-count">0</span>)</h3>';
+            const container = document.getElementById('records-container');
+            const countSpan = document.getElementById('record-count');
+            container.innerHTML = '';
+            countSpan.textContent = records.length;
             
+            if (records.length === 0) {
+                container.innerHTML = '<p style="text-align:center; padding: 20px;">No records added yet.</p>';
+                return;
+            }
+
             records.forEach((record, index) => {
                 const recordItem = document.createElement('div');
                 recordItem.className = 'record-item';
@@ -369,6 +680,14 @@
 
                 const buttonsDiv = document.createElement('div');
                 buttonsDiv.className = 'record-item-buttons';
+
+                // Duplicate Button
+                const dupBtn = document.createElement('button');
+                dupBtn.textContent = 'Copy';
+                dupBtn.className = 'duplicate-btn';
+                dupBtn.title = "Duplicate this record";
+                dupBtn.onclick = () => duplicateRecord(index);
+                buttonsDiv.appendChild(dupBtn);
 
                 const editBtn = document.createElement('button');
                 editBtn.textContent = 'Edit';
@@ -382,61 +701,58 @@
                 buttonsDiv.appendChild(deleteBtn);
 
                 recordItem.appendChild(buttonsDiv);
-                recordListContainer.appendChild(recordItem);
+                container.appendChild(recordItem);
             });
-
-            const newRecordCountSpan = recordListContainer.querySelector('#record-count');
-            if (newRecordCountSpan) {
-                newRecordCountSpan.textContent = records.length;
-            }
         }
 
-        // Function to edit a record
+        function duplicateRecord(index) {
+            const copy = JSON.parse(JSON.stringify(records[index]));
+            records.push(copy);
+            saveToLocalStorage();
+            renderRecords();
+            showToast('Record duplicated', 'success');
+        }
+
         function editRecord(index) {
             const record = records[index];
             keys.forEach(key => {
                 const inputElement = document.getElementById(key);
-                if (inputElement) {
-                    inputElement.value = record[key];
-                }
+                if (inputElement) inputElement.value = record[key];
             });
             recordToEditIndex = index;
             document.getElementById('add-record-btn').textContent = 'Update Record';
+            window.scrollTo({ top: 0, behavior: 'smooth' });
         }
 
-        // Function to delete a record
         function deleteRecord(index) {
-            records.splice(index, 1);
-            renderRecords();
+            if(confirm("Delete this record?")) {
+                records.splice(index, 1);
+                saveToLocalStorage();
+                renderRecords();
+                showToast('Record deleted', 'info');
+            }
         }
 
-        // Function to generate the CSV and trigger the download
         function generateCSV() {
             if (records.length === 0) {
-                alert("Please add at least one record before downloading.");
+                showToast("Please add at least one record before downloading.", 'error');
                 return;
             }
 
-            // Create the CSV header row from the keys array
             let csvContent = keys.map(key => `"${key.replace(/"/g, '""')}"`).join(',') + '\n';
-            
-            // Loop through each saved record and create a new row
             records.forEach(record => {
                 const values = keys.map(key => {
                     const value = record[key] || '';
-                    // Sanitize the value for CSV format
                     return `"${value.replace(/"/g, '""')}"`;
                 });
                 csvContent += values.join(',') + '\n';
             });
 
-            // Generate the dynamic filename
             const now = new Date();
             const month = (now.getMonth() + 1).toString().padStart(2, '0');
             const day = now.getDate().toString().padStart(2, '0');
             const filename = `BT_account_updater_input_${month}${day}_${downloadVersion}.csv`;
             
-            // Create a Blob from the CSV data and download it
             const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
             const url = URL.createObjectURL(blob);
             const link = document.createElement('a');
@@ -447,14 +763,16 @@
             link.click();
             document.body.removeChild(link);
 
-            // Increment the download version for the next download
             downloadVersion++;
+            saveToLocalStorage();
+            showToast('CSV downloaded!', 'success');
         }
 
-        // Run this function when the page is fully loaded
-        document.addEventListener('DOMContentLoaded', populateInputFields);
+        document.addEventListener('DOMContentLoaded', () => {
+            populateInputFields();
+            loadFromLocalStorage();
+        });
     </script>
 
 </body>
 </html>
-
