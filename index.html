@@ -345,11 +345,17 @@
             "global_id": "global_id (BT_pmProfile)"
         };
 
+        function getCurrentIsoTimestamp() {
+            const now = new Date();
+            // produce format like 2026-07-29T04:10:43+00:00 (no milliseconds)
+            const iso = now.toISOString().replace(/\.\d{3}Z$/, '+00:00');
+            return iso;
+        }
+
         const defaultValues = {
-            "card_updated_at": "2026-07-29T04:10:43+00:00",
+            "card_updated_at": getCurrentIsoTimestamp(),
             "payment_method_token": "xyxz3178",
-            "old_expiration": "12/30",
-            "new_expiration": "02/35", 
+            
             "new_card_type": "",
             "update_type": "",
             "prepaid": "No",
@@ -538,6 +544,16 @@
             return wrapper;
         }
 
+        function formatExpiryInput(input) {
+            if (!input) return;
+            // keep only digits, max 4 (MMYY)
+            let v = input.value.replace(/[^0-9]/g, '').slice(0,4);
+            if (v.length > 2) {
+                v = v.slice(0,2) + '/' + v.slice(2);
+            }
+            input.value = v;
+        }
+
         function populateInputFields() {
             const container = document.getElementById('input-fields');
             keys.forEach(key => {
@@ -560,6 +576,7 @@
                     const minDateId = (key === "new_expiration") ? "old_expiration" : null;
                     group.appendChild(createCustomPicker(input, defaultValues[key], minDateId));
                     input.addEventListener('input', () => {
+                         formatExpiryInput(input);
                          if (input.value.trim() !== '') {
                              document.getElementById(`error-${key}`).textContent = '';
                              input.classList.remove('input-error');
