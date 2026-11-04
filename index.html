@@ -1,795 +1,246 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="scroll-smooth">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>BT Account updater input CSV file Generator</title>
+    <title>Sowmya Reddy & Yuva Kishor Reddy - Haldi Invitation</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        haldiYellow: '#FFC107',
+                        haldiOrange: '#FF9800',
+                        haldiDark: '#3E2723',
+                        marigold: '#FFB300'
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        serif: ['Playfair Display', 'serif']
+                    }
+                }
+            }
+        }
+    </script>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,600;0,700;1,400&display=swap" rel="stylesheet">
+    <!-- FontAwesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            margin: 0;
-            padding: 20px;
-            background-color: #f4f7f9;
-            display: flex;
-            justify-content: center;
-            align-items: flex-start;
-            min-height: 100vh;
+        .marigold-bg {
+            background: linear-gradient(135deg, #FFC107 0%, #FF9800 50%, #FF5722 100%);
         }
-        .container {
-            width: 100%;
-            max-width: 900px;
-            background-color: #fff;
-            padding: 30px;
-            border-radius: 12px;
-            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
-            animation: fadeIn 0.8s ease-in-out;
-            position: relative;
-        }
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-        h2 {
-            text-align: center;
-            color: #2c3e50;
-            margin-bottom: 10px;
-        }
-        p {
-            text-align: center;
-            color: #7f8c8d;
-            margin-bottom: 30px;
-        }
-        .input-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 20px;
-        }
-        .input-group {
-            display: flex;
-            flex-direction: column;
-            position: relative;
-        }
-        .input-group label {
-            font-weight: 600;
-            color: #34495e;
-            margin-bottom: 5px;
-        }
-        .mandatory-label::after {
-            content: '*';
-            color: #e74c3c;
-            font-size: 1.2em;
-            margin-left: 4px;
-        }
-        .input-group input, .input-group select {
-            padding: 10px;
-            border: 1px solid #bdc3c7;
-            border-radius: 6px;
-            font-size: 14px;
-            transition: border-color 0.3s, box-shadow 0.3s;
-            box-sizing: border-box;
-            width: 100%;
-        }
-        .input-group input:focus, .input-group select:focus {
-            outline: none;
-            border-color: #3498db;
-            box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.2);
-        }
-        .button-container {
-            text-align: center;
-            margin-top: 30px;
-            display: flex;
-            justify-content: center;
-            gap: 15px;
-            flex-wrap: wrap;
-        }
-        button {
-            padding: 12px 24px;
-            background-color: #3498db;
-            color: white;
-            border: none;
-            border-radius: 6px;
-            cursor: pointer;
-            font-size: 16px;
-            font-weight: bold;
-            transition: background-color 0.3s, transform 0.2s;
-        }
-        button:hover {
-            background-color: #2980b9;
-            transform: translateY(-2px);
-        }
-        .btn-green {
-            background-color: #27ae60;
-        }
-        .btn-green:hover {
-            background-color: #219150;
-        }
-        .btn-red {
-            background-color: #e74c3c;
-        }
-        .btn-red:hover {
-            background-color: #c0392b;
-        }
-        .record-list {
-            margin-top: 40px;
-            border-top: 2px solid #ecf0f1;
-            padding-top: 20px;
-        }
-        .record-list-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 15px;
-        }
-        .record-item {
-            background-color: #ecf0f1;
-            border-radius: 8px;
-            padding: 15px;
-            margin-bottom: 10px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            gap: 10px;
-            flex-wrap: wrap;
-        }
-        .record-item-data {
-            font-size: 14px;
-            color: #34495e;
-            flex: 1;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-        }
-        .record-item-buttons {
-            display: flex;
-            gap: 10px;
-        }
-        .record-item-buttons button {
-            padding: 6px 12px;
-            font-size: 12px;
-        }
-        .delete-btn {
-            background-color: #e74c3c;
-        }
-        .delete-btn:hover {
-            background-color: #c0392b;
-        }
-        .duplicate-btn {
-            background-color: #f39c12;
-        }
-        .duplicate-btn:hover {
-            background-color: #d35400;
-        }
-        
-        /* Validation Styles */
-        .input-group .error-message {
-            color: #e74c3c;
-            font-size: 12px;
-            margin-top: 4px;
-            min-height: 16px;
-        }
-        .input-group .input-error {
-            border-color: #e74c3c;
-        }
-
-        /* Picker Styles */
-        .picker-wrapper {
-            display: flex;
-            align-items: center;
-            width: 100%;
-            position: relative;
-        }
-        .picker-btn {
-            padding: 0 10px;
-            background: #ecf0f1;
-            border: 1px solid #bdc3c7;
-            border-left: none;
-            border-top-right-radius: 6px;
-            border-bottom-right-radius: 6px;
-            cursor: pointer;
-            height: 39px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 18px;
-        }
-        .picker-btn:hover {
-            background-color: #d5dbdb;
-        }
-        .input-with-picker {
-            border-top-right-radius: 0 !important;
-            border-bottom-right-radius: 0 !important;
-        }
-        .custom-datepicker {
-            position: absolute;
-            top: 100%;
-            right: 0;
-            width: 220px;
-            background: #fff;
-            border: 1px solid #bdc3c7;
-            border-radius: 6px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.15);
-            z-index: 1000;
-            display: none;
-            font-size: 14px;
-            color: #333;
-            overflow: hidden;
-        }
-        .custom-datepicker.active {
-            display: block;
-        }
-        .dp-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            background-color: #f4f7f9;
-            padding: 8px;
-            border-bottom: 1px solid #eee;
-        }
-        .dp-year-btn {
-            background: none;
-            border: none;
-            cursor: pointer;
-            font-weight: bold;
-            color: #3498db;
-            padding: 4px 8px;
-        }
-        .dp-year-btn:hover {
-            background-color: #e8ecef;
-            border-radius: 4px;
-        }
-        .dp-year-btn:disabled {
-            color: #bdc3c7;
-            cursor: not-allowed;
-            background: none !important;
-        }
-        .dp-year-display {
-            font-weight: bold;
-        }
-        .dp-body {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 2px;
-            padding: 5px;
-        }
-        .dp-month-btn {
-            padding: 8px 0;
-            text-align: center;
-            cursor: pointer;
-            border-radius: 4px;
-            font-size: 13px;
-        }
-        .dp-month-btn:hover:not(.disabled) {
-            background-color: #3498db;
-            color: white;
-        }
-        .dp-month-btn.disabled {
-            color: #bdc3c7;
-            cursor: not-allowed;
-            background-color: #f9f9f9;
-        }
-
-        /* Toast Styles */
-        #toast-container {
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            z-index: 9999;
-        }
-        .toast {
-            background-color: #333;
-            color: #fff;
-            padding: 12px 24px;
-            border-radius: 6px;
-            margin-bottom: 10px;
-            opacity: 0;
-            transform: translateY(-20px);
-            transition: opacity 0.3s, transform 0.3s;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-            display: flex;
-            align-items: center;
-        }
-        .toast.success { background-color: #27ae60; }
-        .toast.error { background-color: #e74c3c; }
-        .toast.info { background-color: #3498db; }
-        .toast.show {
-            opacity: 1;
-            transform: translateY(0);
+        .pattern-overlay {
+            background-image: radial-gradient(#fff 1px, transparent 1px);
+            background-size: 24px 24px;
         }
     </style>
 </head>
-<body>
+<body class="bg-amber-50 text-amber-950 font-sans antialiased selection:bg-amber-300 selection:text-amber-900">
 
-    <div id="toast-container"></div>
-
-    <div class="container">
-        <h2>BT Account updater input CSV file Generator</h2>
-        <p>Fill in the values below. Auto-saves to your browser.</p>
-        
-        <div id="input-fields" class="input-grid">
-            <!-- Input fields will be dynamically added here by JavaScript -->
-        </div>
-
-        <div class="button-container">
-            <button id="add-record-btn" onclick="addRecord()">Add Record</button>
-            <button class="btn-green" onclick="generateCSV()">Download CSV</button>
-        </div>
-
-        <div class="record-list" id="record-list">
-            <div class="record-list-header">
-                <h3>Saved Records (<span id="record-count">0</span>)</h3>
-                <button onclick="confirmClearAll()" class="btn-red" style="padding: 6px 12px; font-size: 14px;">Clear All</button>
-            </div>
-            <div id="records-container">
-                <!-- Saved records will be displayed here -->
-            </div>
+    <!-- Custom Notification Box (Replacing alert) -->
+    <div id="toast" class="fixed top-5 right-5 z-50 transform translate-x-[120%] opacity-0 transition-all duration-300 bg-amber-900 text-amber-100 px-6 py-4 rounded-xl shadow-2xl flex items-center space-x-3 border border-amber-600 pointer-events-none">
+        <i id="toast-icon" class="fa-solid fa-circle-check text-yellow-400 text-xl"></i>
+        <div>
+            <h4 id="toast-title" class="font-bold">Success!</h4>
+            <p id="toast-message" class="text-sm">Your response has been recorded.</p>
         </div>
     </div>
 
+    <!-- Header / Hero Section -->
+    <header class="relative overflow-hidden marigold-bg text-white py-12 px-4 shadow-lg">
+        <div class="absolute inset-0 opacity-10 pattern-overlay"></div>
+        <div class="max-w-4xl mx-auto text-center relative z-10">
+            <span class="inline-block px-4 py-1.5 rounded-full bg-white/20 text-white font-medium text-sm tracking-widest uppercase mb-4 backdrop-blur-sm border border-white/30">
+                <i class="fa-solid fa-sun text-yellow-200 mr-2"></i> Wedding Festivities
+            </span>
+            <h1 class="font-serif text-4xl sm:text-6xl font-bold tracking-tight mb-3 drop-shadow-md">
+                Sowmya Reddy <span class="font-light italic text-yellow-100">&amp;</span> Yuva Kishor Reddy
+            </h1>
+            <p class="text-lg sm:text-2xl font-light text-amber-100 tracking-wide mb-6">
+                Joyfully invite you and your family to their <span class="font-bold underline decoration-yellow-300">Haldi Ceremony</span>
+            </p>
+            <div class="inline-flex items-center space-x-2 bg-white/10 px-5 py-2 rounded-full backdrop-blur-md text-sm border border-white/20">
+                <i class="fa-solid fa-calendar-days text-yellow-200"></i>
+                <span>Save the Date &bull; Celebrate with us</span>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content Grid: Canva Embed + Details -->
+    <main class="max-w-5xl mx-auto px-4 py-10 grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+        
+        <!-- Left Column: Canva Invitation Embed -->
+        <section class="lg:col-span-7 bg-white p-4 sm:p-6 rounded-3xl shadow-xl border border-amber-100">
+            <div class="flex items-center justify-between mb-4 pb-3 border-b border-amber-100">
+                <h2 class="font-serif text-xl font-bold text-amber-900 flex items-center">
+                    <i class="fa-solid fa-envelope-open-text text-amber-500 mr-2"></i> Digital Invitation Card
+                </h2>
+                <a href="https://www.canva.com/design/DAHZ7KxSE7Y/eSNz50E5ZHmAZ32NUxt2Yw/view?utm_content=DAHZ7KxSE7Y&amp;utm_campaign=designshare&amp;utm_medium=embeds&amp;utm_source=link" target="_blank" rel="noopener" class="text-xs font-semibold text-amber-600 hover:text-amber-800 underline flex items-center">
+                    View Fullscreen <i class="fa-solid fa-arrow-up-right-from-square ml-1"></i>
+                </a>
+            </div>
+
+            <!-- Canva Embed Code Container -->
+            <div style="position: relative; width: 100%; height: 0; padding-top: 177.7778%; padding-bottom: 0; box-shadow: 0 4px 20px 0 rgba(63,69,81,0.12); margin-top: 0.5em; margin-bottom: 1em; overflow: hidden; border-radius: 16px; will-change: transform;">
+                <iframe loading="lazy" style="position: absolute; width: 100%; height: 100%; top: 0; left: 0; border: none; padding: 0; margin: 0;"
+                    src="https://www.canva.com/design/DAHZ7KxSE7Y/eSNz50E5ZHmAZ32NUxt2Yw/view?embed" allowfullscreen="allowfullscreen" allow="fullscreen">
+                </iframe>
+            </div>
+
+            <div class="text-center text-xs text-amber-700 font-medium">
+                Designed with love by <span class="font-bold text-amber-900">Yuva Kiran Reddy Arepally</span>
+            </div>
+        </section>
+
+        <!-- Right Column: Event Details & RSVP Form -->
+        <section class="lg:col-span-5 space-y-6">
+            
+            <!-- Event Countdown Card -->
+            <div class="bg-gradient-to-br from-amber-500 to-amber-600 text-white p-6 rounded-3xl shadow-xl relative overflow-hidden">
+                <div class="absolute -right-6 -bottom-6 opacity-10 text-9xl">
+                    <i class="fa-solid fa-sun"></i>
+                </div>
+                <h3 class="font-serif text-xl font-bold mb-3 flex items-center">
+                    <i class="fa-solid fa-hourglass-half mr-2"></i> Countdown to Celebration
+                </h3>
+                <div id="countdown" class="grid grid-cols-4 gap-2 text-center my-4">
+                    <div class="bg-white/20 backdrop-blur-sm p-3 rounded-2xl">
+                        <span id="days" class="block text-2xl font-bold">00</span>
+                        <span class="text-xs uppercase tracking-wider text-amber-100">Days</span>
+                    </div>
+                    <div class="bg-white/20 backdrop-blur-sm p-3 rounded-2xl">
+                        <span id="hours" class="block text-2xl font-bold">00</span>
+                        <span class="text-xs uppercase tracking-wider text-amber-100">Hours</span>
+                    </div>
+                    <div class="bg-white/20 backdrop-blur-sm p-3 rounded-2xl">
+                        <span id="minutes" class="block text-2xl font-bold">00</span>
+                        <span class="text-xs uppercase tracking-wider text-amber-100">Mins</span>
+                    </div>
+                    <div class="bg-white/20 backdrop-blur-sm p-3 rounded-2xl">
+                        <span id="seconds" class="block text-2xl font-bold">00</span>
+                        <span class="text-xs uppercase tracking-wider text-amber-100">Secs</span>
+                    </div>
+                </div>
+                <p class="text-xs text-center text-amber-100 font-medium mt-2">Get ready to shower blessings in yellow & turmeric!</p>
+            </div>
+
+            <!-- Event Details Card -->
+            <div class="bg-white p-6 rounded-3xl shadow-xl border border-amber-100 space-y-4">
+                <h3 class="font-serif text-xl font-bold text-amber-900 border-b border-amber-100 pb-3 flex items-center">
+                    <i class="fa-solid fa-location-dot text-amber-500 mr-2"></i> Ceremony Details
+                </h3>
+                <div class="space-y-3 text-sm">
+                    <div class="flex items-start space-x-3">
+                        <div class="bg-amber-100 text-amber-700 p-2.5 rounded-xl mt-0.5">
+                            <i class="fa-solid fa-calendar-star"></i>
+                        </div>
+                        <div>
+                            <span class="block font-bold text-amber-900">Date</span>
+                            <span class="text-amber-800">Check invitation details for date & time</span>
+                        </div>
+                    </div>
+                    <div class="flex items-start space-x-3">
+                        <div class="bg-amber-100 text-amber-700 p-2.5 rounded-xl mt-0.5">
+                            <i class="fa-solid fa-shirt"></i>
+                        </div>
+                        <div>
+                            <span class="block font-bold text-amber-900">Dress Code</span>
+                            <span class="text-amber-800">Shades of Yellow, Orange & Traditional Ethnic Wear</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Event Map Location Card -->
+            <div class="bg-white p-6 rounded-3xl shadow-xl border border-amber-100 space-y-3">
+                <h3 class="font-serif text-xl font-bold text-amber-900 border-b border-amber-100 pb-3 flex items-center">
+                    <i class="fa-solid fa-map-location-dot text-amber-500 mr-2"></i> Venue Map Location
+                </h3>
+                <p class="text-xs text-amber-800 font-medium">Jagadhishwari’s hilltop paradise</p>
+                <!-- Embedded Map Container -->
+                <div class="w-full h-64 rounded-2xl overflow-hidden shadow-inner border border-amber-200">
+                    <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3809.2456433007883!2d78.8139245!3d17.303693199999998!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3bcb0d0005e8d00b%3A0x5ddc1f5a6c8dbd48!2sJagadhishwari%E2%80%99s%20hilltop%20paradise!5e0!3m2!1sen!2sca!4v1793767222913!5m2!1sen!2sca" width="100%" height="100%" style="border:0;" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+                </div>
+                <div class="text-center pt-1">
+                    <a href="https://maps.google.com/?q=Jagadhishwari%E2%80%99s+hilltop+paradise" target="_blank" rel="noopener" class="inline-flex items-center text-xs font-bold text-amber-600 hover:text-amber-800 underline">
+                        Open in Google Maps <i class="fa-solid fa-arrow-up-right-from-square ml-1"></i>
+                    </a>
+                </div>
+            </div>
+
+            <!-- RSVP Form Card -->
+            <div class="bg-white p-6 rounded-3xl shadow-xl border border-amber-100">
+                <h3 class="font-serif text-xl font-bold text-amber-900 mb-4 pb-2 border-b border-amber-100 flex items-center">
+                    <i class="fa-solid fa-circle-check text-amber-500 mr-2"></i> Send Your Blessings & RSVP
+                </h3>
+                <form id="rsvp-form" onsubmit="handleRSVP(event)" class="space-y-4">
+                    <div>
+                        <label class="block text-xs font-bold text-amber-900 uppercase tracking-wider mb-1">Your Full Name</label>
+                        <input type="text" id="guest-name" required placeholder="e.g. Priya Sharma & Family" 
+                            class="w-full px-4 py-2.5 rounded-xl border border-amber-200 focus:outline-none focus:ring-2 focus:ring-amber-500 bg-amber-50/50 text-sm">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-amber-900 uppercase tracking-wider mb-1">Will you attend?</label>
+                        <select id="guest-attendance" class="w-full px-4 py-2.5 rounded-xl border border-amber-200 focus:outline-none focus:ring-2 focus:ring-amber-500 bg-amber-50/50 text-sm">
+                            <option value="Joyfully Attending">Joyfully Attending 💛</option>
+                            <option value="Sending Best Wishes">Will Celebrate in Spirit ✨</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-amber-900 uppercase tracking-wider mb-1">Blessings / Note for Couple</label>
+                        <textarea id="guest-message" rows="2" placeholder="Write a sweet message..." 
+                            class="w-full px-4 py-2.5 rounded-xl border border-amber-200 focus:outline-none focus:ring-2 focus:ring-amber-500 bg-amber-50/50 text-sm"></textarea>
+                    </div>
+                    <button type="submit" class="w-full marigold-bg text-white font-bold py-3 rounded-xl shadow-lg hover:opacity-95 transition active:scale-[0.98] text-sm tracking-wider uppercase">
+                        Confirm RSVP <i class="fa-solid fa-paper-plane ml-2"></i>
+                    </button>
+                </form>
+            </div>
+
+        </section>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-amber-950 text-amber-200 py-8 px-4 text-center mt-12 border-t border-amber-900">
+        <div class="max-w-xl mx-auto space-y-3">
+            <h3 class="font-serif text-2xl text-yellow-400 font-bold">Sowmya &amp; Yuva Kishor</h3>
+            <p class="text-xs text-amber-300">We can't wait to celebrate this joyous milestone with our dearest friends and family!</p>
+            <p class="text-xs text-amber-500 pt-4 border-t border-amber-900/50">
+                &copy; 2026 Haldi Ceremony Celebration. All rights reserved.
+            </p>
+        </div>
+    </footer>
+
+    <!-- Script Logic -->
     <script>
-        const keys = [
-            "card_updated_at", "payment_method_token", "customer_id", "old_last_4",
-            "old_expiration", "new_last_4", "new_expiration", "new_card_type",
-            "update_type", "prepaid", "healthcare", "debit", "durbin_regulated",
-            "commercial", "payroll", "issuing_bank", "country_of_issuance",
-            "product_id", "source", "bin", "global_id", "unique_number_identifier"
-        ];
-        
-        const mandatoryKeys = [
-            "card_updated_at", "customer_id", "old_last_4", "old_expiration", 
-            "new_last_4", "new_expiration", "new_card_type", "update_type", 
-            "debit", "global_id"
-        ];
+        // Custom notification toast instead of alert
+        function showToast(title, message, isError = false) {
+            const toast = document.getElementById('toast');
+            const toastTitle = document.getElementById('toast-title');
+            const toastMessage = document.getElementById('toast-message');
+            const toastIcon = document.getElementById('toast-icon');
 
-        const labelMapping = {
-            "customer_id": "customer_id (user Login_id)",
-            "global_id": "global_id (BT_pmProfile)"
-        };
-
-        function getCurrentIsoTimestamp() {
-            const now = new Date();
-            // produce format like 2026-07-29T04:10:43+00:00 (no milliseconds)
-            const iso = now.toISOString().replace(/\.\d{3}Z$/, '+00:00');
-            return iso;
-        }
-
-        const defaultValues = {
-            "card_updated_at": getCurrentIsoTimestamp(),
-            "payment_method_token": "xyxz3178",
+            toastTitle.innerText = title;
+            toastMessage.innerText = message;
             
-            "new_card_type": "",
-            "update_type": "",
-            "prepaid": "No",
-            "healthcare": "No",
-            "commercial": "No",
-            "payroll": "No",
-            "issuing_bank": "U.S. BANK NATIONAL ASSOCIATION",
-            "country_of_issuance": "USA",
-            "product_id": "F",
-            "source": "BATCH",
-            "unique_number_identifier": "89dfb1d12y71841da92e8b31l9",
-            "debit": "No",
-            "durbin_regulated": "No",
-            "bin": "1845241"
-        };
-        
-        const fieldOptions = {
-            "new_card_type": ["Visa", "MasterCard"],
-            "update_type": ["New account number", "New expiry date", "Call customer - Account Closed", "Call customer for updates"],
-            "prepaid": ["Yes", "No", "Unknown"],
-            "healthcare": ["Yes", "No", "Unknown"],
-            "debit": ["Yes", "No", "Unknown"],
-            "durbin_regulated": ["Yes", "No", "Unknown"],
-            "commercial": ["Yes", "No", "Unknown"],
-            "payroll": ["Yes", "No", "Unknown"]
-        };
-
-        let records = [];
-        let recordToEditIndex = -1;
-        let downloadVersion = 1;
-
-        // --- TOAST NOTIFICATIONS ---
-        function showToast(message, type = 'info') {
-            const container = document.getElementById('toast-container');
-            const toast = document.createElement('div');
-            toast.className = `toast ${type}`;
-            toast.textContent = message;
-            container.appendChild(toast);
-            requestAnimationFrame(() => toast.classList.add('show'));
-            setTimeout(() => {
-                toast.classList.remove('show');
-                setTimeout(() => container.removeChild(toast), 300);
-            }, 3000);
-        }
-
-        // --- LOCAL STORAGE ---
-        function saveToLocalStorage() {
-            localStorage.setItem('csvGeneratorRecords', JSON.stringify(records));
-            localStorage.setItem('csvGeneratorVersion', downloadVersion);
-        }
-
-        function loadFromLocalStorage() {
-            const savedRecords = localStorage.getItem('csvGeneratorRecords');
-            const savedVersion = localStorage.getItem('csvGeneratorVersion');
-            
-            if (savedRecords) {
-                try {
-                    records = JSON.parse(savedRecords);
-                    if (savedVersion) downloadVersion = parseInt(savedVersion);
-                    renderRecords();
-                    if(records.length > 0) showToast(`Restored ${records.length} saved records`, 'info');
-                } catch (e) {
-                    console.error("Error parsing saved records", e);
-                }
-            }
-        }
-
-        // --- PICKER LOGIC ---
-        const monthsShort = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
-
-        function createCustomPicker(inputElement, defaultValue, minDateInputId = null) {
-            const wrapper = document.createElement('div');
-            wrapper.className = 'picker-wrapper';
-            inputElement.className = 'input-with-picker';
-            
-            const pickerBtn = document.createElement('button');
-            pickerBtn.type = 'button';
-            pickerBtn.className = 'picker-btn';
-            pickerBtn.innerHTML = '📅';
-            
-            const popup = document.createElement('div');
-            popup.className = 'custom-datepicker';
-            
-            let currentYear = new Date().getFullYear();
-            if (defaultValue && defaultValue.includes('/')) {
-                const parts = defaultValue.split('/');
-                if (parts.length === 2) currentYear = 2000 + parseInt(parts[1]); 
-            }
-
-            function getMinDate() {
-                if (!minDateInputId) return null;
-                const minInput = document.getElementById(minDateInputId);
-                if (!minInput || !minInput.value || !minInput.value.includes('/')) return null;
-                const parts = minInput.value.split('/');
-                if (parts.length !== 2) return null;
-                return { month: parseInt(parts[0]) - 1, year: 2000 + parseInt(parts[1]) };
-            }
-
-            const header = document.createElement('div');
-            header.className = 'dp-header';
-
-            const prevYearBtn = document.createElement('button');
-            prevYearBtn.className = 'dp-year-btn';
-            prevYearBtn.textContent = '<';
-            prevYearBtn.onclick = (e) => { e.stopPropagation(); currentYear--; renderPicker(); };
-
-            const yearDisplay = document.createElement('span');
-            yearDisplay.className = 'dp-year-display';
-            
-            const nextYearBtn = document.createElement('button');
-            nextYearBtn.className = 'dp-year-btn';
-            nextYearBtn.textContent = '>';
-            nextYearBtn.onclick = (e) => { e.stopPropagation(); currentYear++; renderPicker(); };
-
-            header.appendChild(prevYearBtn);
-            header.appendChild(yearDisplay);
-            header.appendChild(nextYearBtn);
-
-            const body = document.createElement('div');
-            body.className = 'dp-body';
-
-            function renderPicker() {
-                const minDate = getMinDate();
-                yearDisplay.textContent = currentYear;
-                body.innerHTML = ''; 
-
-                if (minDate && currentYear <= minDate.year) prevYearBtn.disabled = true;
-                else prevYearBtn.disabled = false;
-
-                monthsShort.forEach((m, index) => {
-                    const monthBtn = document.createElement('div');
-                    monthBtn.className = 'dp-month-btn';
-                    monthBtn.textContent = m;
-                    
-                    let isDisabled = false;
-                    if (minDate) {
-                        if (currentYear < minDate.year) isDisabled = true;
-                        else if (currentYear === minDate.year && index <= minDate.month) isDisabled = true;
-                    }
-
-                    if (isDisabled) monthBtn.classList.add('disabled');
-                    else {
-                        monthBtn.onclick = (e) => {
-                            e.stopPropagation();
-                            const mm = (index + 1).toString().padStart(2, '0');
-                            const yy = currentYear.toString().slice(-2);
-                            inputElement.value = `${mm}/${yy}`;
-                            inputElement.dispatchEvent(new Event('input'));
-                            popup.classList.remove('active');
-                        };
-                    }
-                    body.appendChild(monthBtn);
-                });
-            }
-
-            renderPicker();
-            popup.appendChild(header);
-            popup.appendChild(body);
-
-            pickerBtn.onclick = (e) => {
-                e.stopPropagation(); 
-                document.querySelectorAll('.custom-datepicker.active').forEach(p => { if (p !== popup) p.classList.remove('active'); });
-
-                let inputYear = null;
-                if (inputElement.value && inputElement.value.includes('/')) {
-                     const parts = inputElement.value.split('/');
-                     if (parts.length === 2 && !isNaN(parts[1])) inputYear = 2000 + parseInt(parts[1]);
-                }
-
-                const minDate = getMinDate();
-                if (inputYear) currentYear = inputYear;
-                if (minDate && currentYear < minDate.year) currentYear = minDate.year;
-                if (minDate && currentYear === minDate.year && minDate.month === 11) currentYear++;
-
-                renderPicker();
-                popup.classList.toggle('active');
-            };
-
-            document.addEventListener('click', (e) => {
-                if (!popup.contains(e.target) && e.target !== pickerBtn) popup.classList.remove('active');
-            });
-            popup.onclick = (e) => e.stopPropagation();
-            wrapper.appendChild(inputElement);
-            wrapper.appendChild(pickerBtn);
-            wrapper.appendChild(popup);
-            return wrapper;
-        }
-
-        function formatExpiryInput(input) {
-            if (!input) return;
-            // keep only digits, max 4 (MMYY)
-            let v = input.value.replace(/[^0-9]/g, '').slice(0,4);
-            if (v.length > 2) {
-                v = v.slice(0,2) + '/' + v.slice(2);
-            }
-            input.value = v;
-        }
-
-        function populateInputFields() {
-            const container = document.getElementById('input-fields');
-            keys.forEach(key => {
-                const group = document.createElement('div');
-                group.className = 'input-group';
-                const label = document.createElement('label');
-                label.setAttribute('for', key);
-                label.textContent = labelMapping[key] || key;
-                if (mandatoryKeys.includes(key)) label.classList.add('mandatory-label');
-                group.appendChild(label);
-
-                const input = document.createElement('input');
-                input.type = 'text';
-                input.id = key;
-                input.setAttribute('data-key', key);
-                if (defaultValues[key]) input.value = defaultValues[key];
-
-                if (key === "old_expiration" || key === "new_expiration") {
-                    input.placeholder = "MM/YY";
-                    const minDateId = (key === "new_expiration") ? "old_expiration" : null;
-                    group.appendChild(createCustomPicker(input, defaultValues[key], minDateId));
-                    input.addEventListener('input', () => {
-                         formatExpiryInput(input);
-                         if (input.value.trim() !== '') {
-                             document.getElementById(`error-${key}`).textContent = '';
-                             input.classList.remove('input-error');
-                         }
-                    });
-                } else {
-                    if (fieldOptions[key]) {
-                        input.setAttribute('list', `${key}-options`);
-                        const datalist = document.createElement('datalist');
-                        datalist.id = `${key}-options`;
-                        fieldOptions[key].forEach(opt => {
-                            const el = document.createElement('option');
-                            el.value = opt;
-                            datalist.appendChild(el);
-                        });
-                        group.appendChild(datalist);
-                    }
-                    group.appendChild(input);
-                    if (mandatoryKeys.includes(key)) {
-                        input.addEventListener('input', () => {
-                            if (input.value.trim() !== '') {
-                                document.getElementById(`error-${key}`).textContent = '';
-                                input.classList.remove('input-error');
-                            }
-                        });
-                    }
-                }
-                const err = document.createElement('span');
-                err.className = 'error-message';
-                err.id = `error-${key}`;
-                group.appendChild(err);
-                container.appendChild(group);
-            });
-        }
-
-        function addRecord() {
-            const newRecord = {};
-            let hasError = false;
-            clearValidationErrors();
-
-            keys.forEach(key => {
-                const inputElement = document.getElementById(key);
-                let value = inputElement ? inputElement.value.trim() : '';
-                if (mandatoryKeys.includes(key) && value === '') {
-                    document.getElementById(`error-${key}`).textContent = 'This field is required.';
-                    if (inputElement) inputElement.classList.add('input-error');
-                    hasError = true;
-                }
-                newRecord[key] = value;
-            });
-            
-            if (hasError) {
-                showToast('Please fill in all mandatory fields', 'error');
-                return;
-            }
-
-            if (recordToEditIndex === -1) {
-                records.push(newRecord);
-                showToast('Record added successfully', 'success');
+            if (isError) {
+                toastIcon.className = 'fa-solid fa-circle-exclamation text-red-400 text-xl';
             } else {
-                records[recordToEditIndex] = newRecord;
-                recordToEditIndex = -1;
-                document.getElementById('add-record-btn').textContent = 'Add Record';
-                showToast('Record updated successfully', 'success');
+                toastIcon.className = 'fa-solid fa-circle-check text-yellow-400 text-xl';
             }
 
-            saveToLocalStorage();
-            renderRecords();
-            clearForm();
-        }
-
-        function clearForm() {
-            keys.forEach(key => {
-                const inputElement = document.getElementById(key);
-                if (inputElement) inputElement.value = defaultValues[key] || '';
-            });
-            clearValidationErrors();
-            if (recordToEditIndex !== -1) {
-                recordToEditIndex = -1;
-                document.getElementById('add-record-btn').textContent = 'Add Record';
-            }
-        }
-
-        function clearValidationErrors() {
-            document.querySelectorAll('.error-message').forEach(span => span.textContent = '');
-            document.querySelectorAll('.input-error').forEach(input => input.classList.remove('input-error'));
-        }
-
-        function confirmClearAll() {
-            if (records.length === 0) return;
-            if (confirm("Are you sure you want to delete ALL records?")) {
-                records = [];
-                saveToLocalStorage();
-                renderRecords();
-                showToast('All records cleared', 'info');
-            }
-        }
-
-        function renderRecords() {
-            const container = document.getElementById('records-container');
-            const countSpan = document.getElementById('record-count');
-            container.innerHTML = '';
-            countSpan.textContent = records.length;
+            toast.classList.remove('translate-x-[120%]', 'opacity-0', 'pointer-events-none');
+            toast.classList.add('translate-x-0', 'opacity-100');
             
-            if (records.length === 0) {
-                container.innerHTML = '<p style="text-align:center; padding: 20px;">No records added yet.</p>';
-                return;
-            }
-
-            records.forEach((record, index) => {
-                const recordItem = document.createElement('div');
-                recordItem.className = 'record-item';
-
-                const dataDisplay = document.createElement('div');
-                dataDisplay.className = 'record-item-data';
-                dataDisplay.textContent = `Record ${index + 1}: ${record.customer_id || 'No Customer ID'}`;
-                recordItem.appendChild(dataDisplay);
-
-                const buttonsDiv = document.createElement('div');
-                buttonsDiv.className = 'record-item-buttons';
-
-                // Duplicate Button
-                const dupBtn = document.createElement('button');
-                dupBtn.textContent = 'Copy';
-                dupBtn.className = 'duplicate-btn';
-                dupBtn.title = "Duplicate this record";
-                dupBtn.onclick = () => duplicateRecord(index);
-                buttonsDiv.appendChild(dupBtn);
-
-                const editBtn = document.createElement('button');
-                editBtn.textContent = 'Edit';
-                editBtn.onclick = () => editRecord(index);
-                buttonsDiv.appendChild(editBtn);
-
-                const deleteBtn = document.createElement('button');
-                deleteBtn.textContent = 'Delete';
-                deleteBtn.className = 'delete-btn';
-                deleteBtn.onclick = () => deleteRecord(index);
-                buttonsDiv.appendChild(deleteBtn);
-
-                recordItem.appendChild(buttonsDiv);
-                container.appendChild(recordItem);
-            });
+            setTimeout(() => {
+                toast.classList.remove('translate-x-0', 'opacity-100');
+                toast.classList.add('translate-x-[120%]', 'opacity-0', 'pointer-events-none');
+            }, 4000);
         }
 
-        function duplicateRecord(index) {
-            const copy = JSON.parse(JSON.stringify(records[index]));
-            records.push(copy);
-            saveToLocalStorage();
-            renderRecords();
-            showToast('Record duplicated', 'success');
-        }
-
-        function editRecord(index) {
-            const record = records[index];
-            keys.forEach(key => {
-                const inputElement = document.getElementById(key);
-                if (inputElement) inputElement.value = record[key];
-            });
-            recordToEditIndex = index;
-            document.getElementById('add-record-btn').textContent = 'Update Record';
-            window.scrollTo({ top: 0, behavior: 'smooth' });
-        }
-
-        function deleteRecord(index) {
-            if(confirm("Delete this record?")) {
-                records.splice(index, 1);
-                saveToLocalStorage();
-                renderRecords();
-                showToast('Record deleted', 'info');
-            }
-        }
-
-        function generateCSV() {
-            if (records.length === 0) {
-                showToast("Please add at least one record before downloading.", 'error');
-                return;
-            }
-
-            let csvContent = keys.map(key => `"${key.replace(/"/g, '""')}"`).join(',') + '\n';
-            records.forEach(record => {
-                const values = keys.map(key => {
-                    const value = record[key] || '';
-                    return `"${value.replace(/"/g, '""')}"`;
-                });
-                csvContent += values.join(',') + '\n';
-            });
-
-            const now = new Date();
-            const month = (now.getMonth() + 1).toString().padStart(2, '0');
-            const day = now.getDate().toString().padStart(2, '0');
-            const filename = `BT_account_updater_input_${month}${day}_${downloadVersion}.csv`;
-            
-            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-            const url = URL.createObjectURL(blob);
-            const link = document.createElement('a');
-            link.setAttribute('href', url);
-            link.setAttribute('download', filename);
-            link.style.display = 'none';
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
-
-            downloadVersion++;
-            saveToLocalStorage();
-            showToast('CSV downloaded!', 'success');
-        }
-
-        document.addEventListener('DOMContentLoaded', () => {
-            populateInputFields();
-            loadFromLocalStorage();
-        });
-    </script>
-
-</body>
-</html>
+        // Handle RSVP submission
+// ... existing code ... -->
